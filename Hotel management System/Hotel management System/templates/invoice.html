@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-dark text-white text-center py-4">
+            <h2 class="fw-bold mb-0">INVOICE</h2>
+            <p class="text-secondary small">Invoice #{{ booking.id }}</p>
+        </div>
+        <div class="card-body p-5">
+            <div class="row mb-5">
+                <div class="col-6">
+                    <h5 class="fw-bold text-primary">Billed To:</h5>
+                    <p class="lead">{{ booking.guest.first_name }} {{ booking.guest.last_name }}</p>
+                    <p>{{ booking.guest.email }}<br>
+                        Phone: {{ booking.guest.phone }}</p>
+                </div>
+                <div class="col-6 text-end">
+                    <h5 class="fw-bold text-primary">Booking Details:</h5>
+                    <p><strong>Room:</strong> {{ booking.room.room_type|title }} Room {{ booking.room.room_number }}</p>
+                    <p><strong>Check-in:</strong> {{ booking.check_in }}</p>
+                    <p><strong>Check-out:</strong> {{ booking.check_out }}</p>
+                </div>
+            </div>
+
+            <table class="table table-bordered mb-4">
+                <thead class="bg-light">
+                    <tr>
+                        <th>Description</th>
+                        <th class="text-end">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Room Charges</td>
+                        <td class="text-end">₹{{ booking.total_amount }}</td>
+                    </tr>
+                    <tr>
+                        <td>Service Fee (Included)</td>
+                        <td class="text-end">₹0.00</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="fw-bold fs-5">
+                        <td>Total Amount Payable</td>
+                        <td class="text-end text-success">₹{{ booking.total_amount }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div class="text-center mt-5">
+                <button onclick="window.print()" class="btn btn-dark btn-lg px-5 rounded-pill shadow-sm">
+                    <i class="bi bi-printer me-2"></i> Print Invoice
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

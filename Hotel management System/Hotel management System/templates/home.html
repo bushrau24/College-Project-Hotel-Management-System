@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="jumbotron text-center bg-primary text-white py-5 rounded-3 mb-4"
+    style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80'); background-size: cover; background-position: center;">
+    <h1 class="display-4 fw-bold">Welcome to Hotel Horizon</h1>
+    <p class="lead">Experience Luxury with Comfort. Book Your Stay Now.</p>
+    <a href="#rooms" class="btn btn-warning btn-lg fw-bold">View Rooms</a>
+</div>
+
+<div class="card p-4 shadow-sm mb-5">
+    <h3 class="mb-3">Find Your Room</h3>
+    <form method="get" class="row g-3">
+        <div class="col-md-3">
+            <label class="form-label">Room Type</label>
+            <select name="type" class="form-select">
+                <option value="">All Room Types</option>
+                <option value="single">Single</option>
+                <option value="double">Double</option>
+                <option value="suite">Suite</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Dates</label>
+            <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" name="check_in"
+                class="form-control" placeholder="Check-in">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">&nbsp;</label>
+            <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" name="check_out"
+                class="form-control" placeholder="Check-out">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Price Limit</label>
+            <input type="number" name="price" class="form-control" placeholder="Max Price (₹)">
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Check Availability</button>
+        </div>
+    </form>
+</div>
+
+<div id="rooms" class="row">
+    {% for room in rooms %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            {% if room.image %}
+            <img src="{{ room.image.url }}" class="card-img-top" alt="Room Image"
+                style="height: 250px; object-fit: cover;">
+            {% else %}
+            <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60"
+                class="card-img-top" alt="Room Image" style="height: 250px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ room.room_type|title }} Room {{ room.room_number }}</h5>
+                <p class="card-text text-muted">{{ room.amenities }}</p>
+                <h6 class="text-primary">₹{{ room.price_per_night }} / Night</h6>
+                {% if user.is_authenticated %}
+                <a href="{% url 'book_room' room.id %}?check_in={{ request.GET.check_in }}&check_out={{ request.GET.check_out }}"
+                    class="btn btn-success mt-2">Book Now</a>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline-primary mt-2"
+                    onclick="alert('Please Login to your account to book a room.');">Login to Book</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center">
+        <p class="text-muted">No rooms available matching your criteria.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

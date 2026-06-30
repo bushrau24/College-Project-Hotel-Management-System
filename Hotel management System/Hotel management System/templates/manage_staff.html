@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row mb-5">
+    <div class="col-12 mt-4">
+        <div class="p-5 text-white bg-dark rounded-4 shadow-lg"
+            style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-5 fw-bold mb-1">Manage Staff</h1>
+                    <p class="lead mb-0 opacity-75">Directory and daily attendance tracking</p>
+                </div>
+                <button class="btn btn-white bg-white text-success fw-bold px-4 py-2 rounded-pill shadow-sm"
+                    data-bs-toggle="modal" data-bs-target="#addStaffModal">
+                    <i class="bi bi-person-plus-fill me-2"></i>Add Staff Member
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-success"><i class="bi bi-people-fill me-2"></i>Staff Directory</h5>
+                <span class="badge bg-light text-dark border">Date: {{ today }}</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Staff Member</th>
+                            <th>Profession</th>
+                            <th>Contact info</th>
+                            <th>Today's Status</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for staff in staff_members %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success bg-opacity-10 p-2 rounded-circle me-3 text-success">
+                                        <i class="bi bi-person fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">{{ staff.first_name }} {{ staff.last_name }}</h6>
+                                        <small class="text-muted">@{{ staff.username }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span
+                                    class="badge bg-light text-success border border-success border-opacity-25 py-2 px-3">
+                                    {{ staff.profession|default:"General Staff" }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="small">
+                                    <div class="text-dark">
+                                        <i class="bi bi-envelope me-1 text-muted"></i>{{ staff.email }}
+                                    </div>
+                                    <div class="text-muted">
+                                        <i class="bi bi-telephone me-1 text-muted"></i>{{ staff.phone|default:"N/A" }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if staff.today_attendance == 'present' %}
+                                <span class="badge bg-success rounded-pill px-3 py-2"><i
+                                        class="bi bi-check-circle me-1"></i> Present</span>
+                                {% elif staff.today_attendance == 'absent' %}
+                                <span class="badge bg-danger rounded-pill px-3 py-2"><i class="bi bi-x-circle me-1"></i>
+                                    Absent</span>
+                                {% else %}
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3 py-2">Not
+                                    Marked</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    {% if staff.today_attendance == 'Not Marked' %}
+                                    <form method="post" class="btn-group shadow-sm">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="mark_attendance" value="true">
+                                        <input type="hidden" name="staff_id" value="{{ staff.id }}">
+                                        <button type="submit" name="status" value="present"
+                                            class="btn btn-sm btn-outline-success">Present</button>
+                                        <button type="submit" name="status" value="absent"
+                                            class="btn btn-sm btn-outline-danger">Absent</button>
+                                    </form>
+                                    {% endif %}
+                                    <a href="{% url 'edit_staff' staff.id %}"
+                                        class="btn btn-sm btn-light border shadow-sm">
+                                        <i class="bi bi-pencil-square text-success"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="bi bi-people text-light" style="font-size: 3rem;"></i>
+                                <p class="mt-2">No staff members registered yet.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Staff Modal -->
+<div class="modal fade" id="addStaffModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-2xl rounded-5 overflow-hidden">
+            <div class="row g-0">
+                <!-- Modal Sidebar/Visual -->
+                <div class="col-lg-4 d-none d-lg-flex bg-success flex-column justify-content-center p-5 text-white text-center"
+                    style="background: linear-gradient(180deg, #11998e 0%, #38ef7d 100%);">
+                    <i class="bi bi-person-badge display-1 mb-4"></i>
+                    <h4 class="fw-bold">Staff Onboarding</h4>
+                    <p class="small opacity-75">Create professional profiles for your hotel team members.</p>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="modal-header border-0 pt-4 px-4 pb-0">
+                        <h5 class="modal-title fw-bold text-success">Register New Staff</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4 pt-4">
+                        <form method="post" class="staff-registration-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="add_staff" value="true">
+
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="form-floating-custom">
+                                        <label class="form-label small fw-bold text-secondary text-uppercase"><i
+                                                class="bi bi-envelope me-1"></i>Email Address</label>
+                                        <input type="email" name="email" class="form-control bg-light border-0 py-3"
+                                            required placeholder="email@hotel.com">
+                                    </div>
+                                </div>
+
+                                <!-- Group: Personal Details -->
+                                <div class="col-12 mb-2 mt-4">
+                                    <h6 class="text-uppercase fw-bold text-muted small letter-spacing-1 mb-3">Personal
+                                        Info</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating-custom">
+                                        <label class="form-label small fw-bold text-secondary text-uppercase"><i
+                                                class="bi bi-card-text me-1"></i>First Name</label>
+                                        <input type="text" name="first_name" class="form-control bg-light border-0 py-3"
+                                            required placeholder="First Name">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating-custom">
+                                        <label class="form-label small fw-bold text-secondary text-uppercase"><i
+                                                class="bi bi-card-text me-1"></i>Last Name</label>
+                                        <input type="text" name="last_name" class="form-control bg-light border-0 py-3"
+                                            required placeholder="Last Name">
+                                    </div>
+                                </div>
+
+                                <!-- Group: Professional Info -->
+                                <div class="col-12 mb-2 mt-4">
+                                    <h6 class="text-uppercase fw-bold text-muted small letter-spacing-1 mb-3">
+                                        Professional Info</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating-custom">
+                                        <label class="form-label small fw-bold text-secondary text-uppercase"><i
+                                                class="bi bi-briefcase me-1"></i>Profession</label>
+                                        <input type="text" name="profession" class="form-control bg-light border-0 py-3"
+                                            required placeholder="e.g. Master Chef">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating-custom">
+                                        <label class="form-label small fw-bold text-secondary text-uppercase"><i
+                                                class="bi bi-telephone me-1"></i>Phone</label>
+                                        <input type="text" name="phone" class="form-control bg-light border-0 py-3"
+                                            placeholder="9876543210">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-5 text-center">
+                                <button type="submit"
+                                    class="btn btn-success w-100 py-3 rounded-pill fw-bold shadow-lg transform-hover">
+                                    <i class="bi bi-person-plus-fill me-2"></i>CREATE STAFF ACCOUNT
+                                </button>
+                                <p class="text-center small text-muted mt-3 mb-0">Staff details can be updated later
+                                    from the admin panel.</p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .letter-spacing-1 {
+        letter-spacing: 1.5px;
+    }
+
+    .shadow-2xl {
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .rounded-5 {
+        border-radius: 2rem !important;
+    }
+
+    .form-floating-custom .form-control {
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .form-floating-custom .form-control:focus {
+        background-color: #fff !important;
+        box-shadow: 0 0 0 4px rgba(56, 239, 125, 0.15);
+        border: 1px solid #38ef7d;
+    }
+
+    .transform-hover {
+        transition: transform 0.3s ease;
+    }
+
+    .transform-hover:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Override Django default sizing for these specific inputs */
+    .staff-registration-form input {
+        display: block;
+        width: 100%;
+        padding: 1rem;
+        margin-bottom: 0px;
+        /* Resetting previous margin */
+    }
+
+    .modal-backdrop.show {
+        opacity: 0.7;
+        backdrop-filter: blur(5px);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-md-5">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="row g-0">
+                <div class="col-12">
+                    <div class="p-5">
+                        <div class="text-center mb-5">
+                            <div class="bg-primary bg-opacity-10 d-inline-block p-3 rounded-circle mb-3">
+                                <i class="bi bi-person-lock text-primary fs-1"></i>
+                            </div>
+                            <h2 class="fw-bold text-dark">Welcome Back</h2>
+                            <p class="text-muted">Enter your credentials to access your account</p>
+                        </div>
+
+                        <form method="post" novalidate> 
+                            {% csrf_token %}
+                            <div class="form-floating mb-3">
+                                <input type="text" name="username" class="form-control" id="username"
+                                    placeholder="Username" required>
+                                <label for="username">Username</label>
+                            </div>
+                            <div class="form-floating mb-4">
+                                <input type="password" name="password" class="form-control" id="password"
+                                    placeholder="Password" required>
+                                <label for="password">Password</label>
+                            </div>
+
+                            {% if request.GET.next %}
+                            <div class="alert alert-info py-2 mb-4 border-0 rounded-3">
+                                <i class="bi bi-info-circle me-1"></i> Please login to continue with your booking.
+                            </div>
+                            {% endif %}
+
+                            {% if form.errors %}
+                            <div class="alert alert-danger py-2 mb-4 border-0 rounded-3">
+                                <i class="bi bi-exclamation-circle me-1"></i> Invalid username or password
+                            </div>
+                            {% endif %}
+
+                            <button type="submit" class="btn btn-primary w-100 py-3 rounded-3 fw-bold shadow-sm">
+                                Sign In <i class="bi bi-arrow-right-short ms-1"></i>
+                            </button>
+
+                            <div class="text-center mt-4">
+                                <p class="text-muted mb-0">Don't have an account? <a href="{% url 'register' %}"
+                                        class="text-primary fw-bold text-decoration-none">Create one</a></p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

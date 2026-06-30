@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row mb-5">
+    <div class="col-12 mt-4">
+        <div class="p-5 text-white bg-dark rounded-3 shadow-lg"
+            style="background: linear-gradient(45deg, #1a237e, #283593);">
+            <h1 class="display-4 fw-bold">Admin Dashboard</h1>
+            <p class="lead">Welcome back, Admin. Here is your daily overview.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100" style="border-left: 5px solid #0d6efd;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="text-muted text-uppercase mb-0">Total Rooms</h6>
+                    <i class="bi bi-door-closed fs-4 text-primary"></i>
+                </div>
+                <h2 class="display-5 fw-bold text-dark mb-0">{{ total_rooms }}</h2>
+                <small class="text-muted">Registered rooms</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100" style="border-left: 5px solid #198754;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="text-muted text-uppercase mb-0">Available</h6>
+                    <i class="bi bi-check-circle fs-4 text-success"></i>
+                </div>
+                <h2 class="display-5 fw-bold text-dark mb-0">{{ available_rooms }}</h2>
+                <small class="text-success">Ready for booking</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100" style="border-left: 5px solid #dc3545;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="text-muted text-uppercase mb-0">Occupied</h6>
+                    <i class="bi bi-person-fill-lock fs-4 text-danger"></i>
+                </div>
+                <h2 class="display-5 fw-bold text-dark mb-0">{{ occupied_rooms }}</h2>
+                <small class="text-danger">Currently hosted</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100" style="border-left: 5px solid #ffc107;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="text-muted text-uppercase mb-0">Revenue</h6>
+                    <i class="bi bi-currency-rupee fs-4 text-warning"></i>
+                </div>
+                <h2 class="display-5 fw-bold text-dark mb-0">₹{{ total_revenue|floatformat:0 }}</h2>
+                <small class="text-muted">Total earnings</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-table me-2"></i>Recent Bookings</h5>
+                <a href="{% url 'room_list' %}" class="btn btn-sm btn-outline-primary">Manage Rooms</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Guest</th>
+                            <th>Room</th>
+                            <th>Dates</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td class="ps-4 fw-bold">{{ booking.guest.username }}</td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    {% with rn=booking.room.room_number %}{% with rt=booking.room.room_type|title %}
+                                    {{ rn }} ({{ rt }})
+                                    {% endwith %}{% endwith %}
+                                </span>
+                            </td>
+                            <td>
+                                <small class="d-block text-muted">In: {{ booking.check_in|date:"M d" }}</small>
+                                <small class="d-block text-muted">Out: {{ booking.check_out|date:"M d" }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">Booked</span>
+                            </td>
+                            <td>
+                                {% if booking.payment_status %}
+                                <span class="badge bg-success rounded-pill"><i class="bi bi-check-lg"></i> Paid</span>
+                                {% else %}
+                                <span class="badge bg-warning text-dark rounded-pill"><i class="bi bi-clock"></i>
+                                    Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if not booking.payment_status %}
+                                <a href="{% url 'mark_booking_paid' booking.id %}"
+                                    class="btn btn-sm btn-outline-success" title="Mark as Paid"><i
+                                        class="bi bi-check2-circle"></i></a>
+                                {% endif %}
+                                <a href="{% url 'invoice' booking.id %}" class="btn btn-sm btn-outline-secondary"
+                                    title="View Invoice"><i class="bi bi-file-text"></i></a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">No recent bookings found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-lightning-charge me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'add_room' %}"
+                    class="list-group-item list-group-item-action py-3 d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 p-2 rounded me-3 text-primary">
+                        <i class="bi bi-plus-lg"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">Add New Room</h6>
+                        <small class="text-muted">Register a new room unit</small>
+                    </div>
+                </a>
+                <a href="{% url 'manage_staff' %}"
+                    class="list-group-item list-group-item-action py-3 d-flex align-items-center">
+                    <div class="bg-success bg-opacity-10 p-2 rounded me-3 text-success">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">Manage Staff</h6>
+                        <small class="text-muted">Add staff & View attendance</small>
+                    </div>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action py-3 d-flex align-items-center">
+                    <div class="bg-secondary bg-opacity-10 p-2 rounded me-3 text-secondary">
+                        <i class="bi bi-gear"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">System Settings</h6>
+                        <small class="text-muted">Configure hotel details</small>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
